@@ -27,9 +27,16 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST")    return res.status(405).send("Method Not Allowed");
 
-  if (req.headers["x-admin-key"] !== process.env.ADMIN_API_KEY) {
-    return res.status(401).send("Unauthorized");
-  }
+const validKeys = [
+  process.env.ADMIN_API_KEY,
+  process.env.ADMIN_KEY_SIL,
+  process.env.ADMIN_KEY_FILIP,
+  process.env.ADMIN_KEY_ARDA
+].filter(Boolean);
+
+if (!validKeys.includes(req.headers["x-admin-key"])) {
+  return res.status(401).send("Unauthorized");
+}
 
   try {
     const { owner, repo, path, branch = "main", message, content } = await readBody(req);
