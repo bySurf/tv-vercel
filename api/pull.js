@@ -2,6 +2,45 @@
 // Reads a JSON file from a GitHub repo using a server-held token.
 // Set env var: GITHUB_TOKEN
 
+function setCors(res) {
+  // allow file:// (origin "null") and anything else (we aren't using credentials)
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-admin-key");
+  res.setHeader("Access-Control-Max-Age", "86400"); // cache preflight
+}
+
+export default async function handler(req, res) {
+  setCors(res);
+
+  // Preflight
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+  if (req.method !== "POST") {
+    return res.status(405).send("Method Not Allowed");
+  }
+
+  // Shared-secret check
+  if (req.headers["x-admin-key"] !== process.env.ADMIN_API_KEY) {
+    return res.status(401).send("Unauthorized");
+  }
+
+  // --- Your endpoint-specific logic goes here ---
+  // For /api/pull: read owner/repo/path/ref from body and GET from GitHub.
+  // For /api/push: read owner/repo/path/branch/message/content and PUT to GitHub.
+
+  // Example body reader:
+  const chunks = [];
+  for await (const c of req) chunks.push(c);
+  const raw = Buffer.concat(chunks).toString("utf8");
+  const body = raw ? JSON.parse(raw) : {};
+  
+  // ... do GitHub fetches ...
+  // return res.json(result);
+}
+
+
 if (req.headers['x-admin-key'] !== process.env.ADMIN_API_KEY) {
   setCors(res);
   return res.status(401).send('Unauthorized');
