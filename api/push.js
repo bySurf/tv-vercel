@@ -1,8 +1,10 @@
 // api/push.js — direct commit to main (no PR)
 
 if (req.headers['x-admin-key'] !== process.env.ADMIN_API_KEY) {
-  setCors(res); return res.status(401).send('Unauthorized');
+  setCors(res);
+  return res.status(401).send('Unauthorized');
 }
+
 
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
