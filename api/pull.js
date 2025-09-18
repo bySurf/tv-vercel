@@ -2,6 +2,10 @@
 // Reads a JSON file from a GitHub repo using a server-held token.
 // Set env var: GITHUB_TOKEN
 
+if (req.headers['x-admin-key'] !== process.env.ADMIN_API_KEY) {
+  setCors(res); return res.status(401).send('Unauthorized');
+}
+
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
     setCors(res);
